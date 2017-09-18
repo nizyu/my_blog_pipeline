@@ -14,11 +14,12 @@ resource "google_storage_bucket" "backend" {
   name = "${var.backend_bucket_name}"
 }
 
-
+## blog document repository
 resource "google_sourcerepo_repository" "my_blog" {
   name = "${var.document_repository}"
 }
 
+## DNS for my blog
 resource "google_dns_managed_zone" "my_dns" {
   name        = "my-dns"
   dns_name    = "${var.website_domain}."
@@ -35,6 +36,7 @@ resource "google_dns_record_set" "my_website" {
   rrdatas = ["c.storage.googleapis.com."]
 }
 
+## gcs bucket for my blog
 resource "google_storage_bucket" "website" {
   depends_on = ["google_dns_record_set.my_website"]
 
@@ -46,7 +48,9 @@ resource "google_storage_bucket" "website" {
   }
 }
 
+resource "google_storage_bucket_acl" "image-store-acl" {
+  bucket = "${google_storage_bucket.website.name}"
 
-output "dns_servars" {
-  value = "${google_dns_managed_zone.my_dns.name_servers}"
+  predefined_acl = "publicread"
+  default_acl    = "publicread"
 }
